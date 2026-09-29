@@ -1,26 +1,145 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fafdfb;
+  --foreground: #0f172a;
+  --isims-green: #3fa85b;
+  --isims-green-dark: #0f4c2a;
+  --isims-green-light: #e8f7ee;
+  --isims-green-glow: rgba(63, 168, 91, 0.35);
+  --surface-white: #ffffff;
+  --surface-border: rgba(15, 76, 42, 0.08);
+  --surface-border-hover: rgba(63, 168, 91, 0.3);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@theme {
+  --color-brand-green: #3fa85b;
+  --color-brand-green-dark: #0f4c2a;
+  --color-brand-green-light: #e8f7ee;
+  --color-surface-bg: #fafdfb;
+  --color-surface-card: #ffffff;
+  --font-condensed: var(--font-oswald), sans-serif;
+  --font-sans: var(--font-geist-sans), sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #fafdfb;
+  color: #0f172a;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #fafdfb;
+  color: #0f172a;
+  overflow-x: hidden;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Clean Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #fafdfb;
+}
+::-webkit-scrollbar-thumb {
+  background: #c8e6d2;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3fa85b;
+}
+
+/* Light Ambient Clean Mesh Background */
+.bg-clean-mesh {
+  background-color: #fafdfb;
+  background-image: 
+    radial-gradient(at 20% 15%, rgba(63, 168, 91, 0.12) 0px, transparent 50%),
+    radial-gradient(at 80% 20%, rgba(15, 76, 42, 0.06) 0px, transparent 50%),
+    radial-gradient(at 50% 80%, rgba(63, 168, 91, 0.08) 0px, transparent 50%);
+}
+
+.bg-dot-pattern {
+  background-image: radial-gradient(rgba(15, 76, 42, 0.1) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Modern Clean Glass Panels */
+.clean-card {
+  background: #ffffff;
+  border: 1px solid rgba(15, 76, 42, 0.08);
+  box-shadow: 0 4px 20px -4px rgba(15, 76, 42, 0.05), 0 2px 6px -2px rgba(0, 0, 0, 0.02);
+}
+
+.clean-card-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.clean-card-hover:hover {
+  border-color: rgba(63, 168, 91, 0.35);
+  box-shadow: 0 16px 36px -8px rgba(63, 168, 91, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Shine / Shimmer Animations */
+@keyframes shineSweep {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+  }
+  100% {
+    transform: translateX(200%) rotate(45deg);
+  }
+}
+
+.animate-shine {
+  animation: shineSweep 2.5s infinite;
+}
+
+/* Typography Gradient Shimmer for Logo Font */
+@keyframes textShine {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.text-shimmer-green {
+  background: linear-gradient(
+    90deg,
+    #0f4c2a 0%,
+    #3fa85b 35%,
+    #7ee7a4 50%,
+    #3fa85b 65%,
+    #0f4c2a 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textShine 4s linear infinite;
+}
+
+/* GPU-Accelerated Zero Inner Orbital Light Animation */
+@keyframes orbitalLight {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -360px;
+  }
+}
+
+.animate-orbital-light {
+  animation: orbitalLight 2.2s linear infinite;
+  will-change: stroke-dashoffset;
 }
