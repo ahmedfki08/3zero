@@ -4,7 +4,7 @@ export const FEATURED_EVENT: UpcomingEvent = {
   id: 'sfax-3zero-hackathon-2026',
   slug: 'sfax-3zero-hackathon',
   title: 'Sfax 3-Zero Campus Hackathon 2026',
-  tagline: '48 hours of open-source building for Zero Carbon and Zero Exclusion',
+  tagline: '48 Hours of open-source building for Zero Carbon and Zero Exclusion',
   category: 'Hackathon',
   pillarId: 'all',
   startUtc: '2026-10-24T08:30:00Z',
