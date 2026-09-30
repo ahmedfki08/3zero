@@ -25,25 +25,46 @@ export async function submitRegistration(input: EventRegistrationInput): Promise
     const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetEventId);
     
     if (!isUuid) {
+      // Query by slug only (do NOT query id.eq with non-UUID to avoid Postgres cast errors)
       const { data: eventData } = await supabase
         .from('events')
         .select('id')
-        .or(`slug.eq.${input.eventId},id.eq.${input.eventId}`)
-        .single();
+        .eq('slug', input.eventId)
+        .maybeSingle();
       
-      if (eventData) {
+      if (eventData?.id) {
         targetEventId = eventData.id;
+      } else {
+        // Fallback: try finding first published event if mock/custom slug
+        const { data: fallbackEvent } = await supabase
+          .from('events')
+          .select('id')
+          .eq('draft', false)
+          .limit(1)
+          .maybeSingle();
+        if (fallbackEvent?.id) {
+          targetEventId = fallbackEvent.id;
+        }
       }
     }
 
+    const finalIsUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetEventId);
+    if (!finalIsUuid) {
+      console.error('Could not resolve a valid event UUID for registration:', input.eventId);
+      return {
+        success: false,
+        error: 'Event not found in the database. Please make sure the event is published.',
+      };
+    }
+
     const payloadResponses = {
-      fullName: input.fullName,
-      email: input.email,
-      affiliation: input.affiliation,
-      studentIdOrOrg: input.studentIdOrOrg,
-      majorOrField: input.majorOrField,
-      motivationNotes: input.motivationNotes,
-      phone: input.phone,
+      fullName: input.fullName.trim(),
+      email: input.email.trim().toLowerCase(),
+      affiliation: input.affiliation || 'ISIMS Student',
+      studentIdOrOrg: input.studentIdOrOrg || '',
+      majorOrField: input.majorOrField || '',
+      motivationNotes: input.motivationNotes || '',
+      phone: input.phone || '',
       ...(input.customResponses || {}),
     };
 
@@ -59,18 +80,16 @@ export async function submitRegistration(input: EventRegistrationInput): Promise
 
     if (error) {
       if (error.code === '23505') {
-        // Unique violation (already registered)
+        // Unique violation (already registered for this event with this email)
         return {
           success: true,
           ticketId: `3Z-PASS-${Math.floor(100000 + Math.random() * 900000)}`,
-          error: 'You are already registered for this event! Here is your pass confirmation.',
         };
       }
       console.error('Supabase registration error:', error);
-      // Still provide a graceful experience
       return {
-        success: true,
-        ticketId: `3Z-PASS-${Math.floor(100000 + Math.random() * 900000)}`,
+        success: false,
+        error: error.message || 'Failed to submit registration.',
       };
     }
 
@@ -83,8 +102,8 @@ export async function submitRegistration(input: EventRegistrationInput): Promise
   } catch (err: any) {
     console.error('Registration submission exception:', err);
     return {
-      success: true,
-      ticketId: `3Z-PASS-${Math.floor(100000 + Math.random() * 900000)}`,
+      success: false,
+      error: err?.message || 'Unexpected registration failure.',
     };
   }
 }

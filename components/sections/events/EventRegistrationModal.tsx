@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import confetti from 'canvas-confetti';
 import { UpcomingEvent, EventRegistrationPayload } from '@/types/events';
 import { submitRegistration } from '@/lib/data/registrations';
 import { fetchEventFormFields, EventFormField } from '@/lib/data/eventFields';
@@ -13,6 +14,7 @@ import {
   ArrowRight,
   User,
   Mail,
+  RotateCcw,
 } from 'lucide-react';
 
 interface EventRegistrationModalProps {
@@ -43,6 +45,27 @@ export const EventRegistrationModal: React.FC<EventRegistrationModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [ticketId, setTicketId] = useState('');
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const handleResetForm = () => {
+    setIsSuccess(false);
+    setSubmitError(null);
+    setFormData({
+      eventId: event?.id || '',
+      fullName: '',
+      email: '',
+      affiliation: 'ISIMS Student',
+      studentIdOrOrg: '',
+      majorOrField: '',
+      motivationNotes: '',
+    });
+    const initialAnswers: Record<string, any> = {};
+    customFields.forEach((f) => {
+      initialAnswers[f.field_key] = f.type === 'checkbox' ? false : '';
+    });
+    setCustomAnswers(initialAnswers);
+    setTicketId('');
+  };
 
   // Load event custom form fields
   useEffect(() => {
@@ -108,6 +131,7 @@ export const EventRegistrationModal: React.FC<EventRegistrationModalProps> = ({
     }
 
     setIsSubmitting(true);
+    setSubmitError(null);
     try {
       const result = await submitRegistration({
         eventId: event.id,
@@ -120,12 +144,25 @@ export const EventRegistrationModal: React.FC<EventRegistrationModalProps> = ({
         customResponses: customAnswers,
       });
 
+      if (!result.success) {
+        setSubmitError(result.error || 'Registration failed. Please check your information and try again.');
+        return;
+      }
+
       setIsSuccess(true);
       setTicketId(result.ticketId || `3Z-PASS-${Math.floor(100000 + Math.random() * 900000)}`);
-    } catch (err) {
+
+      try {
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#3FA85B', '#0F4C2A', '#4EBA6F', '#10B981'],
+        });
+      } catch {}
+    } catch (err: any) {
       console.error(err);
-      setIsSuccess(true);
-      setTicketId(`3Z-PASS-${Math.floor(100000 + Math.random() * 900000)}`);
+      setSubmitError(err?.message || 'Registration failed. Please check your information and try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -351,6 +388,14 @@ export const EventRegistrationModal: React.FC<EventRegistrationModalProps> = ({
                     )}
                   </div>
 
+                  {/* Error banner if submission failed */}
+                  {submitError && (
+                    <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-mono flex items-center gap-2">
+                      <span className="font-bold">⚠</span>
+                      <span>{submitError}</span>
+                    </div>
+                  )}
+
                   {/* Submit */}
                   <div className="pt-2 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3">
                     <button
@@ -418,12 +463,23 @@ export const EventRegistrationModal: React.FC<EventRegistrationModalProps> = ({
                     </div>
                   </div>
 
-                  <button
-                    onClick={onClose}
-                    className="px-6 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-[#3FA85B] text-xs font-mono font-bold uppercase transition-colors cursor-pointer"
-                  >
-                    Done
-                  </button>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={handleResetForm}
+                      className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-mono font-bold flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                      <span>Register Another Pass</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-[#3FA85B] text-xs font-mono font-bold uppercase transition-colors cursor-pointer"
+                    >
+                      Done
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

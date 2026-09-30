@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 
 export interface CountdownTime {
   days: string;
@@ -49,8 +49,8 @@ export function useCountdown(startUtc: string, endUtc?: string): CountdownTime {
   const [isMounted, setIsMounted] = useState(false);
   const [currentTime, setCurrentTime] = useState<number>(() => Date.now());
 
-  const targetStartTime = useRef(new Date(startUtc).getTime()).current;
-  const targetEndTime = useRef(endUtc ? new Date(endUtc).getTime() : targetStartTime + 86400000).current;
+  const targetStartTime = startUtc ? new Date(startUtc).getTime() : 0;
+  const targetEndTime = endUtc ? new Date(endUtc).getTime() : targetStartTime + 86400000;
 
   useEffect(() => {
     setIsMounted(true);
