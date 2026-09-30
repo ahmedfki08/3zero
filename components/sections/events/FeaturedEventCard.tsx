@@ -166,7 +166,7 @@ export const FeaturedEventCard: React.FC<FeaturedEventCardProps> = ({
               <MapPin className="w-3.5 h-3.5 text-[#3FA85B] shrink-0" />
               <span className="truncate">
                 <strong className="text-slate-800">{event.location.venue}</strong>
-                {event.location.room ? ` · ${event.location.room}` : ''} ({event.location.city})
+                {event.location.room ? ` · ${event.location.room}` : ''}
               </span>
             </div>
           </div>

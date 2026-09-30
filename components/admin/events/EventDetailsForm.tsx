@@ -325,7 +325,7 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div>
             <label className="block text-xs font-mono font-bold text-slate-700 uppercase mb-1">
               Venue
@@ -436,27 +436,27 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
             ))}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               placeholder="Speaker Name"
               value={newSpeakerName}
               onChange={(e) => setNewSpeakerName(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-xs font-sans"
+              className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-slate-200 text-xs font-sans focus:outline-none focus:border-[#3FA85B]"
             />
             <input
               type="text"
               placeholder="Role / Title"
               value={newSpeakerRole}
               onChange={(e) => setNewSpeakerRole(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-xs font-sans"
+              className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-slate-200 text-xs font-sans focus:outline-none focus:border-[#3FA85B]"
             />
             <button
               type="button"
               onClick={handleAddSpeaker}
-              className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-mono font-bold"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-mono font-bold whitespace-nowrap cursor-pointer"
             >
-              Add
+              + Add
             </button>
           </div>
         </div>
@@ -485,20 +485,21 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
             ))}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               placeholder="e.g. Laptop with Python 3.10+, Student ID card..."
               value={newRequirement}
               onChange={(e) => setNewRequirement(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-xs font-sans"
+              className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-slate-200 text-xs font-sans focus:outline-none focus:border-[#3FA85B]"
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddRequirement(); } }}
             />
             <button
               type="button"
               onClick={handleAddRequirement}
-              className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-mono font-bold"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-mono font-bold whitespace-nowrap cursor-pointer"
             >
-              Add
+              + Add
             </button>
           </div>
         </div>
@@ -568,38 +569,39 @@ export const EventDetailsForm: React.FC<EventDetailsFormProps> = ({
             ))}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               placeholder="e.g. 14 working prototypes submitted to campus faculty"
               value={newHighlight}
               onChange={(e) => setNewHighlight(e.target.value)}
-              className="flex-1 px-3 py-2 rounded-xl border border-slate-200 text-xs font-sans"
+              className="flex-1 min-w-0 px-3 py-2 rounded-xl border border-slate-200 text-xs font-sans focus:outline-none focus:border-[#3FA85B]"
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddHighlight(); } }}
             />
             <button
               type="button"
               onClick={handleAddHighlight}
-              className="px-3.5 py-2 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-xs font-mono font-bold"
+              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-xs font-mono font-bold whitespace-nowrap cursor-pointer"
             >
-              Add Highlight
+              + Add Highlight
             </button>
           </div>
         </div>
       </div>
 
       {/* ── Submit Bar ──────────────────────────────────────────────── */}
-      <div className="flex items-center justify-end gap-3 pt-2">
+      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-2">
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-5 py-2.5 rounded-xl text-xs font-mono font-bold text-slate-600 hover:bg-slate-100"
+          className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-xs font-mono font-bold text-slate-600 hover:bg-slate-100 text-center cursor-pointer"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSaving}
-          className="px-6 py-2.5 rounded-xl bg-[#0F4C2A] hover:bg-[#3FA85B] text-white text-xs font-mono font-bold uppercase transition-all shadow-sm flex items-center gap-2"
+          className="w-full sm:w-auto px-6 py-2.5 rounded-xl bg-[#0F4C2A] hover:bg-[#3FA85B] text-white text-xs font-mono font-bold uppercase transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60"
         >
           {isSaving ? (
             <>

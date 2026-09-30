@@ -2,8 +2,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { FEATURED_EVENT, UPCOMING_EVENTS, PAST_EVENTS_ARCHIVE } from '@/content/events';
-import { UpcomingEvent } from '@/types/events';
-import { fetchEvents } from '@/lib/data/events';
+import { UpcomingEvent, PastEventArchive } from '@/types/events';
+import { fetchEvents, fetchPastEventsArchive } from '@/lib/data/events';
 import { FeaturedEventCard } from './events/FeaturedEventCard';
 import { TicketWall } from './events/TicketWall';
 import { ArchiveEventList } from './events/ArchiveEventList';
@@ -14,6 +14,7 @@ import { Calendar } from 'lucide-react';
 export const EventsSection: React.FC = () => {
   const [featuredEvent, setFeaturedEvent] = useState<UpcomingEvent>(FEATURED_EVENT);
   const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>(UPCOMING_EVENTS);
+  const [pastEvents, setPastEvents] = useState<PastEventArchive[]>(PAST_EVENTS_ARCHIVE);
   const [selectedEvent, setSelectedEvent] = useState<UpcomingEvent | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -25,6 +26,13 @@ export const EventsSection: React.FC = () => {
         setUpcomingEvents(upcoming);
       }
     });
+
+    fetchPastEventsArchive({ limit: 4 }).then((res) => {
+      if (isMounted && res.items && res.items.length > 0) {
+        setPastEvents(res.items);
+      }
+    });
+
     return () => {
       isMounted = false;
     };
@@ -90,7 +98,7 @@ export const EventsSection: React.FC = () => {
         />
 
         {/* ── PART C: Archive List (Past Historical Sprints) ─────────── */}
-        <ArchiveEventList pastEvents={PAST_EVENTS_ARCHIVE} />
+        <ArchiveEventList pastEvents={pastEvents} />
       </div>
 
       {/* ── Dedicated Event Registration Modal ──────────────────────── */}

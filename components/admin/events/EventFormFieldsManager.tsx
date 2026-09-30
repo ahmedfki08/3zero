@@ -14,19 +14,16 @@ import {
   HelpCircle,
   FileQuestion,
 } from 'lucide-react';
-
-interface FormFieldItem {
-  id: string;
-  label: string;
-  field_key: string;
-  type: string;
-  required: boolean;
-  sort_order: number;
-}
+import {
+  EventFormField,
+  saveEventFormField,
+  deleteEventFormField,
+  fetchEventFormFields,
+} from '@/lib/data/eventFields';
 
 interface EventFormFieldsManagerProps {
   eventId: string;
-  initialFields: FormFieldItem[];
+  initialFields: EventFormField[];
 }
 
 export const EventFormFieldsManager: React.FC<EventFormFieldsManagerProps> = ({
@@ -35,7 +32,7 @@ export const EventFormFieldsManager: React.FC<EventFormFieldsManagerProps> = ({
 }) => {
   const router = useRouter();
 
-  const [fields, setFields] = useState<FormFieldItem[]>(
+  const [fields, setFields] = useState<EventFormField[]>(
     [...initialFields].sort((a, b) => a.sort_order - b.sort_order)
   );
 
@@ -72,34 +69,24 @@ export const EventFormFieldsManager: React.FC<EventFormFieldsManagerProps> = ({
     setIsSaving(true);
     setStatusMsg(null);
 
-    const supabase = createClient();
     const newOrder = fields.length + 1;
 
     try {
-      const { data, error } = await supabase
-        .from('event_form_fields')
-        .insert({
-          event_id: eventId,
-          label: newLabel.trim(),
-          field_key: newKey.trim(),
-          type: newType,
-          required: newRequired,
-          sort_order: newOrder,
-        })
-        .select('*')
-        .single();
+      const updated = await saveEventFormField(eventId, {
+        label: newLabel.trim(),
+        field_key: newKey.trim(),
+        type: newType,
+        required: newRequired,
+        sort_order: newOrder,
+      });
 
-      if (error) throw error;
-
-      if (data) {
-        setFields([...fields, data]);
-        setNewLabel('');
-        setNewKey('');
-        setNewType('text');
-        setNewRequired(false);
-        setStatusMsg({ type: 'success', text: 'Registration field added!' });
-        router.refresh();
-      }
+      setFields(updated);
+      setNewLabel('');
+      setNewKey('');
+      setNewType('text');
+      setNewRequired(false);
+      setStatusMsg({ type: 'success', text: 'Registration field added!' });
+      router.refresh();
     } catch (err: any) {
       setStatusMsg({ type: 'error', text: err.message || 'Failed to add form field.' });
     } finally {
@@ -109,27 +96,27 @@ export const EventFormFieldsManager: React.FC<EventFormFieldsManagerProps> = ({
 
   // Delete field
   const handleDeleteField = async (fieldId: string) => {
-    const supabase = createClient();
-    const { error } = await supabase.from('event_form_fields').delete().eq('id', fieldId);
-
-    if (error) {
-      setStatusMsg({ type: 'error', text: error.message });
-      return;
+    try {
+      const updated = await deleteEventFormField(eventId, fieldId);
+      setFields(updated);
+      setStatusMsg({ type: 'success', text: 'Field removed from event.' });
+      router.refresh();
+    } catch (err: any) {
+      setStatusMsg({ type: 'error', text: err.message || 'Failed to delete field' });
     }
-
-    setFields(fields.filter((f) => f.id !== fieldId));
-    setStatusMsg({ type: 'success', text: 'Field removed from event.' });
-    router.refresh();
   };
 
   // Toggle required
-  const handleToggleRequired = async (fieldItem: FormFieldItem) => {
-    const updated = !fieldItem.required;
-    setFields(fields.map((f) => (f.id === fieldItem.id ? { ...f, required: updated } : f)));
-
-    const supabase = createClient();
-    await supabase.from('event_form_fields').update({ required: updated }).eq('id', fieldItem.id);
-    router.refresh();
+  const handleToggleRequired = async (fieldItem: EventFormField) => {
+    const updatedRequired = !fieldItem.required;
+    try {
+      const updated = await saveEventFormField(eventId, {
+        ...fieldItem,
+        required: updatedRequired,
+      });
+      setFields(updated);
+      router.refresh();
+    } catch {}
   };
 
   return (

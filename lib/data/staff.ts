@@ -2,7 +2,7 @@ import { StaffMember, ExecutiveBoardCohort } from '@/types/staff';
 import { DEFAULT_STAFF_COHORTS } from '@/content/staff';
 import { createClient } from '@/lib/supabase/client';
 
-const STORAGE_KEY = '3zero_staff_cohorts_v1';
+const STORAGE_KEY = '3zero_staff_cohorts_v7';
 
 export async function fetchStaffCohorts(): Promise<{
   cohorts: ExecutiveBoardCohort[];
@@ -55,6 +55,12 @@ export async function fetchStaffCohorts(): Promise<{
   // 2. Client-side local storage fallback if in browser
   if (typeof window !== 'undefined') {
     try {
+      localStorage.removeItem('3zero_staff_cohorts_v1');
+      localStorage.removeItem('3zero_staff_cohorts_v2');
+      localStorage.removeItem('3zero_staff_cohorts_v3');
+      localStorage.removeItem('3zero_staff_cohorts_v4');
+      localStorage.removeItem('3zero_staff_cohorts_v5');
+      localStorage.removeItem('3zero_staff_cohorts_v6');
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as ExecutiveBoardCohort[];

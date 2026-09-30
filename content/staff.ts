@@ -233,18 +233,18 @@ export const FOUNDATION_BOARD_2024_2025: StaffMember[] = [
 
 export const DEFAULT_STAFF_COHORTS: ExecutiveBoardCohort[] = [
   {
-    id: '2025-2026',
-    yearLabel: '2025 – 2026',
-    tagline: 'Current Executive Board',
-    isCurrent: true,
-    members: CURRENT_BOARD_2025_2026,
-  },
-  {
-    id: '2024-2025',
-    yearLabel: '2024 – 2025',
+    id: 'foundation-team',
+    yearLabel: 'Foundation Team',
     tagline: 'Foundation Team',
     isCurrent: false,
     members: FOUNDATION_BOARD_2024_2025,
+  },
+  {
+    id: 'current-team',
+    yearLabel: 'Current Team',
+    tagline: 'Current Team',
+    isCurrent: true,
+    members: CURRENT_BOARD_2025_2026,
   },
 ];
 

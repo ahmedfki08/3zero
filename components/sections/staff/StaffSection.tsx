@@ -1,5 +1,5 @@
 'use client';
- 
+
 import React, { useEffect, useState, useTransition } from 'react';
 import { ExecutiveBoardCohort } from '@/types/staff';
 import { DEFAULT_STAFF_COHORTS } from '@/content/staff';
@@ -106,24 +106,21 @@ export const StaffSection: React.FC = () => {
                     <button
                       key={cohort.id}
                       onClick={() => handleSelectCohort(cohort.id)}
-                      className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${
-                        isSelected
+                      className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 cursor-pointer ${isSelected
                           ? 'bg-[#0F4C2A] text-white shadow-md shadow-[#0F4C2A]/20 scale-[1.02]'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/80'
-                      }`}
+                        }`}
                       aria-pressed={isSelected}
                     >
                       {cohort.isCurrent ? (
                         <span className="relative flex h-2 w-2">
                           <span
-                            className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                              isSelected ? 'bg-emerald-300' : 'bg-[#3FA85B]'
-                            }`}
+                            className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${isSelected ? 'bg-emerald-300' : 'bg-[#3FA85B]'
+                              }`}
                           />
                           <span
-                            className={`relative inline-flex rounded-full h-2 w-2 ${
-                              isSelected ? 'bg-white' : 'bg-[#3FA85B]'
-                            }`}
+                            className={`relative inline-flex rounded-full h-2 w-2 ${isSelected ? 'bg-white' : 'bg-[#3FA85B]'
+                              }`}
                           />
                         </span>
                       ) : (
@@ -134,11 +131,10 @@ export const StaffSection: React.FC = () => {
 
                       {cohort.isCurrent && (
                         <span
-                          className={`text-[10px] font-mono uppercase px-1.5 py-0.5 rounded-md font-bold ${
-                            isSelected
+                          className={`text-[10px] font-mono uppercase px-1.5 py-0.5 rounded-md font-bold ${isSelected
                               ? 'bg-emerald-800 text-emerald-100'
                               : 'bg-emerald-100 text-[#0F4C2A]'
-                          }`}
+                            }`}
                         >
                           Current
                         </span>
@@ -146,11 +142,10 @@ export const StaffSection: React.FC = () => {
 
                       {cohort.id === 'foundation-2024-2025' && !cohort.isCurrent && (
                         <span
-                          className={`text-[10px] font-mono uppercase px-1.5 py-0.5 rounded-md font-bold ${
-                            isSelected
+                          className={`text-[10px] font-mono uppercase px-1.5 py-0.5 rounded-md font-bold ${isSelected
                               ? 'bg-emerald-800 text-emerald-100'
                               : 'bg-amber-100 text-amber-800'
-                          }`}
+                            }`}
                         >
                           Foundation
                         </span>

@@ -28,6 +28,8 @@ import {
   Upload,
   Image as ImageIcon,
   ExternalLink,
+  Loader2,
+  FileImage,
 } from 'lucide-react';
 
 const PILLAR_OPTIONS: Array<StaffMember['pillarFocus']> = [
@@ -58,6 +60,11 @@ export default function AdminStaffPage() {
   const [isCohortModalOpen, setIsCohortModalOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<Partial<StaffMember> | null>(null);
   const [editingCohort, setEditingCohort] = useState<Partial<ExecutiveBoardCohort> | null>(null);
+
+  // Device File Upload state
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [photoInputMode, setPhotoInputMode] = useState<'upload' | 'url'>('upload');
 
   useEffect(() => {
     loadData();
@@ -233,6 +240,62 @@ export default function AdminStaffPage() {
     if (!editingMember || !editingMember.socials) return;
     const next = editingMember.socials.filter((_, i) => i !== index);
     setEditingMember({ ...editingMember, socials: next });
+  };
+
+  // Device File Upload Handler
+  const handleDeviceFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingMember) return;
+
+    if (file.size > 10 * 1024 * 1024) {
+      showNotification('File exceeds 10MB limit', 'error');
+      return;
+    }
+
+    setIsUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/admin/upload-staff-image', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Failed to upload photo');
+      }
+
+      const { url } = await res.json();
+      setEditingMember((prev) =>
+        prev
+          ? {
+              ...prev,
+              portraitCutout: url,
+              fallbackPhoto: url,
+            }
+          : null
+      );
+      showNotification('Photo uploaded from device successfully!');
+    } catch (err: any) {
+      console.error(err);
+      showNotification(err.message || 'Error uploading file from device', 'error');
+    } finally {
+      setIsUploadingImage(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    if (!editingMember) return;
+    setEditingMember({
+      ...editingMember,
+      portraitCutout: '',
+      fallbackPhoto: '',
+    });
   };
 
   return (
@@ -617,53 +680,150 @@ export default function AdminStaffPage() {
                   </div>
                 </div>
 
-                {/* Photos / Portrait URL */}
-                <div className="space-y-3 p-4 rounded-2xl bg-black/30 border border-emerald-900/60">
+                {/* Photos / Portrait Upload Section */}
+                <div className="space-y-4 p-4 rounded-2xl bg-black/40 border border-emerald-900/60">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-emerald-300">Portrait &amp; Photo</span>
-                    <span className="text-[10px] text-emerald-400/60">Paste public URL or image link</span>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-emerald-200/70 mb-1">
-                        Portrait Cutout (Transparent PNG preferred)
-                      </label>
-                      <input
-                        type="text"
-                        value={editingMember.portraitCutout || ''}
-                        onChange={(e) => setEditingMember({ ...editingMember, portraitCutout: e.target.value })}
-                        placeholder="/staff/youssef.png or https://..."
-                        className="w-full px-3.5 py-2 rounded-xl bg-black/50 border border-emerald-800/60 text-white placeholder:text-emerald-800 focus:outline-none focus:border-[#3FA85B]"
-                      />
+                    <div className="flex items-center gap-2">
+                      <FileImage className="w-4 h-4 text-[#3FA85B]" />
+                      <span className="font-bold text-emerald-300">Member Photo / Card</span>
                     </div>
 
-                    <div>
-                      <label className="block text-emerald-200/70 mb-1">
-                        Fallback Photo (Square or portrait photo)
-                      </label>
-                      <input
-                        type="text"
-                        value={editingMember.fallbackPhoto || ''}
-                        onChange={(e) => setEditingMember({ ...editingMember, fallbackPhoto: e.target.value })}
-                        placeholder="https://images.unsplash.com/..."
-                        className="w-full px-3.5 py-2 rounded-xl bg-black/50 border border-emerald-800/60 text-white placeholder:text-emerald-800 focus:outline-none focus:border-[#3FA85B]"
-                      />
+                    {/* Mode switcher */}
+                    <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-emerald-900/60">
+                      <button
+                        type="button"
+                        onClick={() => setPhotoInputMode('upload')}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                          photoInputMode === 'upload'
+                            ? 'bg-[#3FA85B] text-[#071A0E]'
+                            : 'text-emerald-400 hover:text-white'
+                        }`}
+                      >
+                        From Device
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setPhotoInputMode('url')}
+                        className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold transition-all cursor-pointer ${
+                          photoInputMode === 'url'
+                            ? 'bg-[#3FA85B] text-[#071A0E]'
+                            : 'text-emerald-400 hover:text-white'
+                        }`}
+                      >
+                        Custom URL
+                      </button>
                     </div>
                   </div>
 
-                  {/* Thumbnail Preview */}
-                  {(editingMember.portraitCutout || editingMember.fallbackPhoto) && (
-                    <div className="flex items-center gap-3 pt-2">
-                      <div className="relative w-12 h-14 rounded-xl overflow-hidden bg-[#0F3319] border border-emerald-600/40">
-                        <Image
-                          src={editingMember.portraitCutout || editingMember.fallbackPhoto || '/logo.png'}
-                          alt="Preview"
-                          fill
-                          className="object-cover object-top"
+                  {photoInputMode === 'upload' ? (
+                    <div>
+                      {/* Hidden native input */}
+                      <input
+                        type="file"
+                        ref={fileInputRef}
+                        accept="image/*"
+                        onChange={handleDeviceFileUpload}
+                        className="hidden"
+                      />
+
+                      {/* Preview or Upload Dropzone */}
+                      {editingMember.portraitCutout || editingMember.fallbackPhoto ? (
+                        <div className="flex items-center gap-4 p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-800/60">
+                          <div className="relative w-16 h-20 rounded-xl overflow-hidden bg-[#0F3319] border border-emerald-600/40 shrink-0">
+                            <Image
+                              src={editingMember.portraitCutout || editingMember.fallbackPhoto || ''}
+                              alt="Uploaded member photo"
+                              fill
+                              className="object-cover object-center"
+                            />
+                          </div>
+
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <div className="text-xs font-bold text-emerald-200 truncate">
+                              {editingMember.portraitCutout || editingMember.fallbackPhoto}
+                            </div>
+                            <div className="text-[10px] font-mono text-emerald-400/70 flex items-center gap-1">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-[#3FA85B]" />
+                              <span>Photo attached from device</span>
+                            </div>
+
+                            <div className="flex items-center gap-2 pt-1.5">
+                              <button
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isUploadingImage}
+                                className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                              >
+                                {isUploadingImage ? (
+                                  <Loader2 className="w-3.5 h-3.5 animate-spin text-[#3FA85B]" />
+                                ) : (
+                                  <Upload className="w-3.5 h-3.5 text-[#3FA85B]" />
+                                )}
+                                <span>Change Photo</span>
+                              </button>
+
+                              <button
+                                type="button"
+                                onClick={handleRemovePhoto}
+                                className="px-3 py-1 rounded-lg bg-red-950/40 hover:bg-red-900/60 text-red-300 text-[11px] font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                                <span>Remove</span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div
+                          onClick={() => fileInputRef.current?.click()}
+                          className="border-2 border-dashed border-emerald-800/80 hover:border-[#3FA85B] bg-emerald-950/20 hover:bg-emerald-950/40 p-6 rounded-2xl text-center cursor-pointer transition-all group flex flex-col items-center justify-center gap-2"
+                        >
+                          {isUploadingImage ? (
+                            <div className="flex flex-col items-center gap-2 py-2">
+                              <Loader2 className="w-8 h-8 text-[#3FA85B] animate-spin" />
+                              <span className="text-xs font-bold text-emerald-200">
+                                Uploading image from device...
+                              </span>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="w-10 h-10 rounded-full bg-[#3FA85B]/10 border border-[#3FA85B]/30 flex items-center justify-center text-[#3FA85B] group-hover:scale-110 transition-transform">
+                                <Upload className="w-5 h-5" />
+                              </div>
+                              <div className="space-y-0.5">
+                                <span className="text-xs font-bold text-white block">
+                                  Click to upload photo from your device
+                                </span>
+                                <span className="text-[10px] text-emerald-400/60 block">
+                                  Supports PNG, JPG, JPEG, WebP (up to 10MB)
+                                </span>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    /* Custom URL Inputs */
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-emerald-200/70 mb-1 text-[11px]">
+                          Photo / Portrait Image URL
+                        </label>
+                        <input
+                          type="text"
+                          value={editingMember.fallbackPhoto || editingMember.portraitCutout || ''}
+                          onChange={(e) =>
+                            setEditingMember({
+                              ...editingMember,
+                              fallbackPhoto: e.target.value,
+                              portraitCutout: e.target.value,
+                            })
+                          }
+                          placeholder="/staff/youssef.png or https://..."
+                          className="w-full px-3.5 py-2 rounded-xl bg-black/50 border border-emerald-800/60 text-white placeholder:text-emerald-800 focus:outline-none focus:border-[#3FA85B]"
                         />
                       </div>
-                      <span className="text-[11px] text-emerald-300/70">Photo preview loaded</span>
                     </div>
                   )}
                 </div>

@@ -9,6 +9,7 @@ export interface EventRegistrationInput {
   majorOrField?: string;
   motivationNotes?: string;
   phone?: string;
+  customResponses?: Record<string, any>;
 }
 
 export async function submitRegistration(input: EventRegistrationInput): Promise<{
@@ -35,19 +36,22 @@ export async function submitRegistration(input: EventRegistrationInput): Promise
       }
     }
 
+    const payloadResponses = {
+      fullName: input.fullName,
+      email: input.email,
+      affiliation: input.affiliation,
+      studentIdOrOrg: input.studentIdOrOrg,
+      majorOrField: input.majorOrField,
+      motivationNotes: input.motivationNotes,
+      phone: input.phone,
+      ...(input.customResponses || {}),
+    };
+
     const { data, error } = await supabase
       .from('event_registrations')
       .insert({
         event_id: targetEventId,
-        responses: {
-          fullName: input.fullName,
-          email: input.email,
-          affiliation: input.affiliation,
-          studentIdOrOrg: input.studentIdOrOrg,
-          majorOrField: input.majorOrField,
-          motivationNotes: input.motivationNotes,
-          phone: input.phone,
-        },
+        responses: payloadResponses,
         status: 'confirmed',
       })
       .select('id')

@@ -51,11 +51,11 @@ export const EventEditorClient: React.FC<EventEditorClientProps> = ({
       </div>
 
       {/* Tabs Navigation */}
-      <div className="flex items-center gap-2 border-b border-slate-200/80 overflow-x-auto pb-px">
+      <div className="flex items-center gap-1 border-b border-slate-200/80 overflow-x-auto pb-px scrollbar-none">
         {[
-          { id: 'details', label: '1. Event Details', icon: Info },
-          { id: 'gallery', label: `2. Gallery Media (${images.length})`, icon: Images },
-          { id: 'form', label: `3. Form Fields (${formFields.length})`, icon: FileQuestion },
+          { id: 'details', label: 'Event Details', shortLabel: 'Details', icon: Info },
+          { id: 'gallery', label: `Gallery (${images.length})`, shortLabel: `Gallery`, icon: Images },
+          { id: 'form', label: `Form Fields (${formFields.length})`, shortLabel: 'Form', icon: FileQuestion },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -63,14 +63,15 @@ export const EventEditorClient: React.FC<EventEditorClientProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-3 border-b-2 text-xs font-mono font-bold tracking-wider uppercase transition-all whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-1.5 px-3 sm:px-4 py-3 border-b-2 text-xs font-mono font-bold tracking-wider uppercase transition-all whitespace-nowrap cursor-pointer shrink-0 ${
                 isActive
                   ? 'border-[#0F4C2A] text-[#0F4C2A]'
                   : 'border-transparent text-slate-400 hover:text-slate-700'
               }`}
             >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
+              <Icon className="w-4 h-4 shrink-0" />
+              <span className="hidden xs:inline sm:hidden lg:inline">{tab.label}</span>
+              <span className="xs:hidden sm:inline lg:hidden">{tab.shortLabel}</span>
             </button>
           );
         })}

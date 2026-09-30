@@ -27,16 +27,21 @@ function formatDisplayDate(startsAt: string, endsAt: string): string {
 function formatDisplayTime(startsAt: string, endsAt: string): string {
   const s = new Date(startsAt);
   const e = new Date(endsAt);
-  const sHours = s.getUTCHours().toString().padStart(2, '0');
-  const sMins = s.getUTCMinutes().toString().padStart(2, '0');
-  const eHours = e.getUTCHours().toString().padStart(2, '0');
-  const eMins = e.getUTCMinutes().toString().padStart(2, '0');
+  const formatTime = (d: Date) =>
+    d.toLocaleTimeString('en-GB', {
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Africa/Tunis',
+    });
+
+  const sTime = formatTime(s);
+  const eTime = formatTime(e);
 
   const diffHours = Math.round((e.getTime() - s.getTime()) / (1000 * 60 * 60));
   if (diffHours >= 24) {
-    return `${sHours}:${sMins} UTC+1 · ${diffHours}H SPRINT`;
+    return `${sTime} · ${diffHours}H SPRINT`;
   }
-  return `${sHours}:${sMins} – ${eHours}:${eMins} UTC+1`;
+  return `${sTime} – ${eTime}`;
 }
 
 export function mapRowToUpcomingEvent(row: EventWithStatusRow): UpcomingEvent {
