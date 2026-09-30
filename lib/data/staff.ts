@@ -2,7 +2,7 @@ import { StaffMember, ExecutiveBoardCohort } from '@/types/staff';
 import { DEFAULT_STAFF_COHORTS } from '@/content/staff';
 import { createClient } from '@/lib/supabase/client';
 
-const STORAGE_KEY = '3zero_staff_cohorts_v7';
+const STORAGE_KEY = '3zero_staff_cohorts_v8';
 
 export async function fetchStaffCohorts(): Promise<{
   cohorts: ExecutiveBoardCohort[];
@@ -61,6 +61,7 @@ export async function fetchStaffCohorts(): Promise<{
       localStorage.removeItem('3zero_staff_cohorts_v4');
       localStorage.removeItem('3zero_staff_cohorts_v5');
       localStorage.removeItem('3zero_staff_cohorts_v6');
+      localStorage.removeItem('3zero_staff_cohorts_v7');
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as ExecutiveBoardCohort[];

@@ -22,6 +22,14 @@ export const RosterList: React.FC<RosterListProps> = ({
   onHoverCancel,
   onKeyDown,
 }) => {
+  if (members.length === 0) {
+    return (
+      <div className="text-center py-12 px-4 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-mono text-slate-400">
+        New cohort recruitment in progress. Check back soon or join the movement below!
+      </div>
+    );
+  }
+
   return (
     <nav
       aria-label="Staff members roster"
